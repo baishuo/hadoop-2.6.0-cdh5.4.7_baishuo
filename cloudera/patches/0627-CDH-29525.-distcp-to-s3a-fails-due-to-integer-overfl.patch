@@ -1,0 +1,96 @@
+From 33160682e7301bbe4890e76fbfe983deabbd3ff3 Mon Sep 17 00:00:00 2001
+From: Aaron Fabbri <fabbri@cloudera.com>
+Date: Wed, 15 Jul 2015 14:04:45 -0700
+Subject: [PATCH 627/642] CDH-29525. distcp to s3a fails due to integer overflow in retry timer.
+
+Picked and modified from 593165fcaf5dec8b
+---
+ hadoop-client/pom.xml                  |    6 ++++++
+ hadoop-project/pom.xml                 |    2 +-
+ hadoop-tools/hadoop-aws/pom.xml        |   16 +++++++++++++---
+ hadoop-tools/hadoop-tools-dist/pom.xml |    6 ++++++
+ 4 files changed, 26 insertions(+), 4 deletions(-)
+
+diff --git a/hadoop-client/pom.xml b/hadoop-client/pom.xml
+index 9b2d9ee..36e7e8d 100644
+--- a/hadoop-client/pom.xml
++++ b/hadoop-client/pom.xml
+@@ -330,6 +330,12 @@
+       <groupId>org.apache.hadoop</groupId>
+       <artifactId>hadoop-aws</artifactId>
+       <scope>compile</scope>
++      <exclusions>
++        <exclusion>
++          <groupId>joda-time</groupId>
++          <artifactId>joda-time</artifactId>
++        </exclusion>
++      </exclusions>
+     </dependency>
+ 
+     <dependency>
+diff --git a/hadoop-project/pom.xml b/hadoop-project/pom.xml
+index ad0df7d..9be258e 100644
+--- a/hadoop-project/pom.xml
++++ b/hadoop-project/pom.xml
+@@ -654,7 +654,7 @@
+       <dependency>
+         <groupId>com.amazonaws</groupId>
+         <artifactId>aws-java-sdk</artifactId>
+-        <version>1.7.4</version>
++        <version>1.7.14</version>
+       </dependency>
+       <dependency>
+         <groupId>org.apache.mina</groupId>
+diff --git a/hadoop-tools/hadoop-aws/pom.xml b/hadoop-tools/hadoop-aws/pom.xml
+index ee23153..a9dbd26 100644
+--- a/hadoop-tools/hadoop-aws/pom.xml
++++ b/hadoop-tools/hadoop-aws/pom.xml
+@@ -158,15 +158,25 @@
+       <artifactId>jackson-annotations</artifactId>
+     </dependency>
+ 
++      <!-- If joda-time is not a dependency here, it will *not* be included in the
++	   uber/shaded jar. Instead, artifacts that have dependency on this .jar
++	   should add exclusions for joda-time.
++      -->
++    <dependency>
++      <groupId>joda-time</groupId>
++      <artifactId>joda-time</artifactId>
++      <version>2.2</version>
++    </dependency>
++
+     <dependency>
+       <groupId>com.amazonaws</groupId>
+       <artifactId>aws-java-sdk</artifactId>
+       <scope>compile</scope>
+       <exclusions>
+         <exclusion>
+-          <groupId>joda-time</groupId>
+-          <artifactId>joda-time</artifactId>
+-        </exclusion>
++	  <groupId>joda-time</groupId>
++	  <artifactId>joda-time</artifactId>
++	</exclusion>
+       </exclusions>
+     </dependency>
+ 
+diff --git a/hadoop-tools/hadoop-tools-dist/pom.xml b/hadoop-tools/hadoop-tools-dist/pom.xml
+index 184e7e7..fca5e33 100644
+--- a/hadoop-tools/hadoop-tools-dist/pom.xml
++++ b/hadoop-tools/hadoop-tools-dist/pom.xml
+@@ -88,6 +88,12 @@
+       <artifactId>hadoop-aws</artifactId>
+       <scope>compile</scope>
+       <version>${project.version}</version>
++      <exclusions>
++	<exclusion>
++	  <groupId>joda-time</groupId>
++	  <artifactId>joda-time</artifactId>
++	</exclusion>
++      </exclusions>
+     </dependency>
+     <dependency>
+       <groupId>org.apache.hadoop</groupId>
+-- 
+1.7.0.4
+

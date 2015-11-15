@@ -1,0 +1,34 @@
+From 56be83679c43c6ac5e21b58947763324ce8a3806 Mon Sep 17 00:00:00 2001
+From: Akira Ajisaka <aajisaka@apache.org>
+Date: Wed, 4 Feb 2015 14:17:00 -0800
+Subject: [PATCH 596/642] HADOOP-11549. flaky test detection tool failed to handle special control characters in test result. Contributed by Yongjun Zhang.
+
+(cherry picked from commit 5f4ef2d13fa3fa3d4d315902e55c7775ef08b3d2)
+(cherry picked from commit 17797c73c2faf07109440da32e9a93762d0b74db)
+---
+ dev-support/determine-flaky-tests-hadoop.py |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+ mode change 100644 => 100755 dev-support/determine-flaky-tests-hadoop.py
+
+diff --git a/dev-support/determine-flaky-tests-hadoop.py b/dev-support/determine-flaky-tests-hadoop.py
+old mode 100644
+new mode 100755
+index 6f16ba5..ce152ba
+--- a/dev-support/determine-flaky-tests-hadoop.py
++++ b/dev-support/determine-flaky-tests-hadoop.py
+@@ -92,10 +92,10 @@ def load_url_data(url):
+     ourl = urllib.request.urlopen(url)
+     codec = ourl.info().get_param('charset')
+     content = ourl.read().decode(codec)
+-    data = simplejson.loads(content)
++    data = simplejson.loads(content, strict=False)
+   else:
+     ourl = urllib2.urlopen(url)
+-    data = simplejson.load(ourl)
++    data = simplejson.load(ourl, strict=False)
+   return data
+  
+ """ List all builds of the target project. """
+-- 
+1.7.0.4
+
